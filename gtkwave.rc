@@ -1,0 +1,7 @@
+highlight_wavewindow 1
+fill_waveform 1
+
+use_fat_lines 1
+color_grid 404040
+color_brkred 2020C0
+color_gmstrd 20C020

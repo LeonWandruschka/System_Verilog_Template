@@ -1,0 +1,57 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Tue Jun 10 22:54:07 2025
+[*]
+[dumpfile] "/Users/leon/Developer/FPGA/SV_Template/dump.fst"
+[dumpfile_mtime] "Tue Jun 10 22:53:47 2025"
+[dumpfile_size] 654
+[savefile] "/Users/leon/Developer/FPGA/SV_Template/counter.gtkw"
+[timestart] 0
+[size] 1664 874
+[pos] 155 1289
+*-12.015747 257000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[sst_width] 255
+[signals_width] 278
+[sst_expanded] 1
+[sst_vpaned_height] 255
+@200
+-System Verilog Template
+-
+-Top Module
+-Counter
+@28
+counter.clk_i
+counter.en_i
+counter.rst_i
+@22
+counter.count_reg[7:0]
+@23
+counter.count_o[7:0]
+[pattern_trace] 1
+[pattern_trace] 0
