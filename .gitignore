@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+bin/
+include/
+lib/
+sim_build/
+synth_out/
+tb/__pycache__/
+*.cfg
+*.vcd
+*.fst
+*.xml
+*.stems
+*.meta
