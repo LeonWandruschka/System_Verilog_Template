@@ -23,6 +23,9 @@ SIM_BUILD 		?= sim_build
 YOSYS 				?= yosys
 SYNTHDIR 			?= synth_out
 
+# 1 = RTL view on | 0 = RTL view off
+VIEW_RTL      := 1
+
 ################################################################################
 # Source Directory
 ################################################################################
@@ -39,6 +42,6 @@ VERILOG_SRC_DIR := $(PWD)/src
 # config.mk
 TEST_DEFS := \
 	counter_tb counter counter.sv \
-	top_tb     top     top.sv;counter.sv
+	top_tb     top     main/top.sv;counter.sv
 
 

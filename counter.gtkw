@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Tue Jun 10 22:54:07 2025
+[*] Sat Jun 14 16:28:07 2025
 [*]
-[dumpfile] "/Users/leon/Developer/FPGA/SV_Template/dump.fst"
-[dumpfile_mtime] "Tue Jun 10 22:53:47 2025"
-[dumpfile_size] 654
-[savefile] "/Users/leon/Developer/FPGA/SV_Template/counter.gtkw"
+[dumpfile] "/home/leon/Desktop/System_Verilog_Template/dump.fst"
+[dumpfile_mtime] "Sat Jun 14 16:27:04 2025"
+[dumpfile_size] 1265
+[savefile] "/home/leon/Desktop/System_Verilog_Template/counter.gtkw"
 [timestart] 0
 [size] 1664 874
 [pos] 155 1289
-*-12.015747 257000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-17.117588 257000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -36,7 +36,8 @@
 [markername] XX
 [markername] YY
 [markername] ZZ
-[sst_width] 255
+[treeopen] top.
+[sst_width] 278
 [signals_width] 278
 [sst_expanded] 1
 [sst_vpaned_height] 255
@@ -44,14 +45,23 @@
 -System Verilog Template
 -
 -Top Module
+@28
+top.clk_i
+[color] 1
+top.rst_i
+@22
+top.count[7:0]
+@28
+top.count_toggle_o
+@200
 -Counter
 @28
-counter.clk_i
-counter.en_i
-counter.rst_i
+top.counter_inst.clk_i
+[color] 1
+top.counter_inst.rst_i
+[color] 3
+top.counter_inst.en_i
 @22
-counter.count_reg[7:0]
-@23
-counter.count_o[7:0]
+top.counter_inst.count_o[7:0]
 [pattern_trace] 1
 [pattern_trace] 0

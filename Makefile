@@ -120,7 +120,21 @@ vcd2fst:
 	vcd2fst dump.vcd dump.fst
 
 view: stems vcd2fst
-	gtkwave -t $(PROJECT_NAME).stems $(PWD)/dump.fst --save=$(PROJECT_NAME).gtkw --rcfile gtkwave.rc -g --dark -d
+	@SAVE_FILE="$(or $(SAVE_FILE),$(PROJECT_NAME).gtkw)"; \
+	if [ ! -f "$$SAVE_FILE" ]; then \
+		echo "[INFO] Creating missing GTKWave save file: $$SAVE_FILE"; \
+		echo '[*] GTKWave Save File' > "$$SAVE_FILE"; \
+	fi; \
+	if [ "$(VIEW_RTL)" = "1" ]; then \
+		gtkwave -t $(PROJECT_NAME).stems $(PWD)/dump.fst \
+			--save="$$SAVE_FILE" \
+			--rcfile gtkwave.rc -g --dark; \
+	else \
+		gtkwave $(PWD)/dump.fst \
+			--save="$$SAVE_FILE" \
+			--rcfile gtkwave.rc -g --dark; \
+	fi
+
 
 ################################################################################
 # Default Synthesis Target = First Test
