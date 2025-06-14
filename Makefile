@@ -1,28 +1,9 @@
-################################################################################
-# Project: Photon Permutation Simulation & Synthesis
-# Simulator: Verilator
-# Testbench: Cocotb (Python)
-# Author: Leon Wandruschka
-################################################################################
+# Makefile
+# Project: System Verilog Template | Simulation & Synthesis
 
 .DEFAULT_GOAL := help
 
-################################################################################
-# Simulator & Language Settings
-################################################################################
-
-PROJECT_NAME := counter
-SIM ?= verilator
-TOPLEVEL_LANG ?= verilog
-TOPLEVEL ?= top
-MODULE ?= tb.top_tb
-SIM_BUILD ?= sim_build
-
-################################################################################
-# Source Directory
-################################################################################
-
-VERILOG_SRC_DIR := $(PWD)/src
+include config.mk
 
 ################################################################################
 # Verilator Options
@@ -36,32 +17,67 @@ EXTRA_ARGS += --coverage
 # Include Cocotb Makefiles
 ################################################################################
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
-
-################################################################################
-# Individual Test Targets (Cocotb)
-################################################################################
-
 COCOTB_MAKEFILE := $(shell cocotb-config --makefiles)/Makefile.sim
+include $(COCOTB_MAKEFILE)
+
+################################################################################
+# Test Template
+################################################################################
+
 ALL_TESTS :=
 
 define TEST_template
-test_$(1):
-	@echo ">>> Running Cocotb testbench: $(1)"
+$(1):
+	@echo ""
+	@echo -e "\033[1;32m>>> Running Cocotb testbench: $(1)<<<\033[0m"
+	@echo ""
 	@echo "TOPLEVEL=$(2)" > .last_test.meta
-	@echo "VERILOG_SOURCES=$(foreach f,$(3),$(VERILOG_SRC_DIR)/$(f))" >> .last_test.meta
+	@echo "VERILOG_SOURCES=$(3)" >> .last_test.meta
 	@echo "SIM_BUILD=sim_build/$(1)" >> .last_test.meta
 	$(MAKE) -f $(COCOTB_MAKEFILE) \
 		SIM=$(SIM) TOPLEVEL_LANG=$(TOPLEVEL_LANG) \
 		TOPLEVEL=$(2) MODULE=tb.$(1) \
-		VERILOG_SOURCES="$(foreach f,$(3),$(VERILOG_SRC_DIR)/$(f))" \
+		VERILOG_SOURCES="$(3)" \
 		SIM_BUILD=sim_build/$(1) \
 		EXTRA_ARGS="$(EXTRA_ARGS)"
-ALL_TESTS += test_$(1)
+ALL_TESTS += $(1)
 endef
 
-$(eval $(call TEST_template,counter_tb,counter,counter.sv))
-$(eval $(call TEST_template,top_tb,top,top.sv counter.sv))
+################################################################################
+# Synthesis Template
+################################################################################
+
+define SYNTH_template
+synth_$(1):
+	@mkdir -p $(SYNTHDIR)
+	$(eval SYNTH_SRCS := $(foreach f,$(3),$(VERILOG_SRC_DIR)/$(f)))
+	sv2v --incdir $(VERILOG_SRC_DIR) -E logic $(SYNTH_SRCS) -w $(SYNTHDIR)/$(1).v
+	$(YOSYS) -p "read_verilog -sv $(SYNTHDIR)/$(1).v; synth; write_verilog $(SYNTHDIR)/$(1)_synth.v"
+endef
+
+################################################################################
+# Evaluate Test Definitions
+################################################################################
+
+# Parse space-separated entries with semicolon-delimited file list in 3rd field
+
+define PARSE_TEST_ENTRY
+$(eval NAME := $(word $(1),$(TEST_DEFS)))
+$(eval TOP  := $(word $(shell echo $$(($(1)+1))),$(TEST_DEFS)))
+$(eval FILES_RAW := $(word $(shell echo $$(($(1)+2))),$(TEST_DEFS)))
+$(eval FILES := $(subst ;, ,$(FILES_RAW)))
+$(eval SRCS := $(foreach f,$(FILES),$(VERILOG_SRC_DIR)/$(f)))
+$(eval $(call TEST_template,$(NAME),$(TOP),$(SRCS)))
+$(eval $(call SYNTH_template,$(NAME),$(TOP),$(FILES)))
+endef
+
+NUM_WORDS := $(words $(TEST_DEFS))
+NUM_TESTS := $(shell echo $$(( $(NUM_WORDS) / 3 )))
+
+$(foreach i,$(shell seq 0 $(shell echo $$(( $(NUM_TESTS) - 1 )))), \
+  $(eval OFFSET := $(shell echo $$(( $(i) * 3 + 1 )))) \
+  $(eval $(call PARSE_TEST_ENTRY,$(OFFSET))) \
+)
 
 test_all: $(ALL_TESTS)
 
@@ -70,7 +86,6 @@ test_all: $(ALL_TESTS)
 ################################################################################
 
 JSON2STEMS_BIN := json2stems/json2stems
-RTL_VIEW := 1
 
 $(JSON2STEMS_BIN):
 	@if [ ! -x "$@" ]; then \
@@ -98,19 +113,14 @@ vcd2fst:
 	vcd2fst dump.vcd dump.fst
 
 view: stems vcd2fst
-	gtkwave -t $(PROJECT_NAME).stems $(PWD)/dump.fst --save=$(PROJECT_NAME).gtkw --rcfile gtkwave.rc -g --dark
+	gtkwave -t $(PROJECT_NAME).stems $(PWD)/dump.fst --save=$(PROJECT_NAME).gtkw --rcfile gtkwave.rc -g --dark -d
 
 ################################################################################
-# Synthesis Flow (sv2v + Yosys)
+# Default Synthesis Target = First Test
 ################################################################################
 
-YOSYS ?= yosys
-SYNTHDIR ?= synth_out
-
-synth:
-	@mkdir -p $(SYNTHDIR)
-	sv2v --incdir $(VERILOG_SRC_DIR) -E logic $(foreach f,counter.sv top.sv,$(VERILOG_SRC_DIR)/$(f)) -w $(SYNTHDIR)/photon_permutation.v
-	$(YOSYS) -p "read_verilog -sv $(SYNTHDIR)/photon_permutation.v; synth; write_verilog $(SYNTHDIR)/photon_permutation_synth.v"
+SYNTH_TEST := $(word 1,$(TEST_DEFS))
+synth: synth_$(SYNTH_TEST)
 
 ################################################################################
 # Coverage
@@ -132,11 +142,12 @@ open-coverage:
 
 help:
 	@echo "Usage:"
-	@echo "  make test_<name>      Run a specific testbench (e.g. test_counter_tb)"
+	@echo "  make <name>           Run a testbench (e.g. make counter_tb)"
 	@echo "  make test_all         Run all tests"
+	@echo "  make synth_<name>     Synthesize a testbench"
+	@echo "  make synth            Synthesize the first test"
 	@echo "  make json / stems     Generate structural netlists and view"
 	@echo "  make view             Open GTKWave with stems and FST"
-	@echo "  make synth            Run synthesis with sv2v and Yosys"
 	@echo "  make coverage         Generate Verilator coverage report"
 	@echo "  make clean-all        Remove all generated files"
 
@@ -144,14 +155,16 @@ help:
 # Clean
 ################################################################################
 
-clean-all:
-	@echo ">>> Cleaning simulation and intermediate build files..."
-	rm -rf sim_build obj_dir $(SYNTHDIR) coverage_html
-	rm -f dump.vcd dump.fst results.xml *.stems *.dat *.info .last_test.meta
+clean::
+	rm -r -f $(SIM_BUILD) obj_dir
+	rm -r -f $(SYNTHDIR)
+	rm -r -f coverage_html
+	rm -f dump.vcd dump.fst
+	rm -f results.xml *.stems *.dat *.info .last_test.meta
 
 ################################################################################
 # Phony Targets
 ################################################################################
 
-.PHONY: help view synth coverage open-coverage clean-all test_all $(ALL_TESTS)
+.PHONY: help view synth coverage open-coverage clean test_all $(ALL_TESTS)
 
