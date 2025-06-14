@@ -1,5 +1,12 @@
-# Makefile
+################################################################################
 # Project: System Verilog Template | Simulation & Synthesis
+# Simulator: Verilator
+# Testbench: Cocotb (Python)
+#
+# File: Makefile
+#
+# Author: Leon Wandruschka
+################################################################################
 
 .DEFAULT_GOAL := help
 
