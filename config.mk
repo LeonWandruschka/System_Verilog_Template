@@ -42,6 +42,6 @@ VERILOG_SRC_DIR := $(PWD)/src
 # config.mk
 TEST_DEFS := \
 	counter_tb counter counter.sv \
-	top_tb     top     main/top.sv;counter.sv
+	top_tb     top     top.sv;counter.sv
 
 

@@ -92,13 +92,6 @@ test_all: $(ALL_TESTS)
 # RTL View (RTLBrowse + GTKWave)
 ################################################################################
 
-JSON2STEMS_BIN := json2stems/json2stems
-
-$(JSON2STEMS_BIN):
-	@if [ ! -x "$@" ]; then \
-		$(MAKE) -C json2stems; \
-	fi
-
 json: $(JSON2STEMS_BIN)
 	@test -f .last_test.meta || (echo "Error: No previous test run. Run a test first." && exit 1)
 	@TOPLEVEL=$$(grep ^TOPLEVEL= .last_test.meta | cut -d= -f2-) && \
@@ -114,7 +107,7 @@ json: $(JSON2STEMS_BIN)
 stems: json
 	@test -f .last_test.meta || (echo "Error: No previous test run. Run a test first." && exit 1)
 	@SIM_BUILD=$$(grep ^SIM_BUILD= .last_test.meta | cut -d= -f2-) && \
-	$(JSON2STEMS_BIN) $$SIM_BUILD/Vtop.tree.json $$SIM_BUILD/Vtop.tree.meta.json $(PROJECT_NAME).stems
+	./json2stems.py $$SIM_BUILD/Vtop.tree.json $$SIM_BUILD/Vtop.tree.meta.json $(PROJECT_NAME).stems
 
 vcd2fst:
 	vcd2fst dump.vcd dump.fst
