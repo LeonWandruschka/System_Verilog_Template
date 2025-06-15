@@ -36,14 +36,15 @@ ALL_TESTS :=
 define TEST_template
 $(1):
 	@echo ""
-	@echo -e "\033[1;32m>>> Running Cocotb testbench: $(1)<<<\033[0m"
+	@echo -e "\033[1;32m>>> Running Cocotb testbench: $(1) <<<\033[0m"
 	@echo ""
 	@echo "TOPLEVEL=$(2)" > .last_test.meta
 	@echo "VERILOG_SOURCES=$(3)" >> .last_test.meta
 	@echo "SIM_BUILD=sim_build/$(1)" >> .last_test.meta
+	$(eval PYMODULE := $(shell find tb -name $(1).py | sed 's/\.py$$//' | sed 's/\//./g'))
 	$(MAKE) -f $(COCOTB_MAKEFILE) \
 		SIM=$(SIM) TOPLEVEL_LANG=$(TOPLEVEL_LANG) \
-		TOPLEVEL=$(2) MODULE=tb.$(1) \
+		TOPLEVEL=$(2) MODULE=$(PYMODULE) \
 		VERILOG_SOURCES="$(3)" \
 		SIM_BUILD=sim_build/$(1) \
 		EXTRA_ARGS="$(EXTRA_ARGS)"
